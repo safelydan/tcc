@@ -1,25 +1,51 @@
+import os
 import pandas as pd
 from time import sleep
 from googleapiclient.discovery import build
 
-def get_comments(api_key, video_id, keywords, max_comments=100):
-    # Inicialização do cliente da API do YouTube
+def get_video_ids_and_titles_from_playlist(api_key, playlist_id):
+    """
+    Obtém todos os IDs de vídeos e seus títulos de uma playlist do YouTube.
+    """
     youtube = build('youtube', 'v3', developerKey=api_key)
 
-    # Configuração da requisição da API
+    videos = []
+    request = youtube.playlistItems().list(
+        part="snippet",
+        playlistId=playlist_id,
+        maxResults=50  # Limite por página
+    )
+
+    while request:
+        response = request.execute()
+        for item in response['items']:
+            video_id = item['snippet']['resourceId']['videoId']
+            title = item['snippet']['title']
+            videos.append((video_id, title))
+
+        request = youtube.playlistItems().list_next(request, response)
+
+    return videos
+
+def get_comments(api_key, video_id, title, keywords, max_comments=100):
+    """
+    Coleta comentários de um vídeo com base em palavras-chave.
+    """
+    youtube = build('youtube', 'v3', developerKey=api_key)
+
     request = youtube.commentThreads().list(
         part="snippet,replies",
         videoId=video_id,
         textFormat="plainText",
-        maxResults=100  # Limita a 100 comentários por página
+        maxResults=100
     )
 
-    # Inicializa o DataFrame principal
+    output_dir = "comments"
+    os.makedirs(output_dir, exist_ok=True)
+
     df = pd.DataFrame(columns=["comment", "replies", "user_name", "date"])
+    comment_count = 0
 
-    comment_count = 0  # Contador de comentários
-
-    # Iteração através de resultados paginados
     while request and comment_count < max_comments:
         replies = []
         comments = []
@@ -30,7 +56,6 @@ def get_comments(api_key, video_id, keywords, max_comments=100):
             for item in response['items']:
                 comment = item['snippet']['topLevelComment']['snippet']['textDisplay']
                 
-                # Verifica se alguma das palavras-chave está no comentário
                 if any(keyword.lower() in comment.lower() for keyword in keywords):
                     comments.append(comment)
                     user_name = item['snippet']['topLevelComment']['snippet']['authorDisplayName']
@@ -50,7 +75,6 @@ def get_comments(api_key, video_id, keywords, max_comments=100):
                     if comment_count >= max_comments:
                         break
 
-            # Adiciona os dados filtrados ao DataFrame
             df2 = pd.DataFrame({
                 "comment": comments,
                 "replies": replies,
@@ -59,24 +83,25 @@ def get_comments(api_key, video_id, keywords, max_comments=100):
             })
             df = pd.concat([df, df2], ignore_index=True)
 
-            # Salva os comentários coletados em um arquivo CSV
-            df.to_csv(f"{video_id}_filtered_comments.csv", index=False, encoding='utf-8')
+            output_path = os.path.join(output_dir, f"{title}_comments.csv")
+            df.to_csv(output_path, index=False, encoding='utf-8')
 
-            # Se atingiu o limite de 100, encerra a coleta
             if comment_count >= max_comments:
                 break
 
             sleep(2)
             request = youtube.commentThreads().list_next(request, response)
         except Exception as e:
-            print(str(e))
-            sleep(10)
-            df.to_csv(f"{video_id}_filtered_comments.csv", index=False, encoding='utf-8')
+            error_message = str(e)
+            if "commentsDisabled" in error_message:
+                print(f"Skipping video '{title}' ({video_id}): Comments are disabled.")
+            else:
+                print(f"Error processing video '{title}' ({video_id}): {e}")
             break
 
 # Exemplo de uso da função:
 api_key = 'AIzaSyD_0nNX7jPiWLiTxEZ17_22oHkyMbB_ny8'
-video_id = 'KQetemT1sWc'
+playlist_id = 'PL0jp-uZ7a4g9FQWW5R_u0pz4yzV4RiOXu'  # ID da playlist
 keywords = [
     "melody", "harmony", "lyrics", "poetic", "emotion", "arrangement", 
     "vibe", "depth", "feeling", "rhythm", "instrumental", "chords", 
@@ -85,4 +110,11 @@ keywords = [
     "smooth", "timbre", "tone", "progression", "atmosphere", "dynamic",
     "soulful", "powerful", "impactful"
 ]
-get_comments(api_key, video_id, keywords)
+
+# Obtém todos os IDs de vídeos e títulos da playlist
+videos = get_video_ids_and_titles_from_playlist(api_key, playlist_id)
+
+# Coleta comentários de todos os vídeos da playlist
+for video_id, title in videos:
+    print(f"Processing video: {title} - {video_id}")
+    get_comments(api_key, video_id, title, keywords)

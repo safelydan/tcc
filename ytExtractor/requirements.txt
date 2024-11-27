@@ -1,2 +1,2 @@
-pandas==
+pandas
 google-api-python-client
