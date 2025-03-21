@@ -121,51 +121,31 @@ def main():
     keywords = [
         # aspectos musicais gerais
         "melody", "harmony", "rhythm", "tempo", "beat", "chords", "notes",
-        "tone", "timbre", "instrumental", "composition", "arrangement",
-        "progression", "pitch", "acoustic", "orchestration",
+        "tone", "timbre", "composition", "progression", "pitch", "acoustic",
 
         # elementos vocais e letra
-        "lyrics", "poetic", "verse", "chorus", "bridge", "vocal", "falsetto",
-        "intonation", "resonance", "phrasing", "lyrical",
+        "lyrics", "verse", "chorus", "vocal",
 
         # produção musical e mixagem
-        "mixing", "mastering", "stereo", "equalization", "reverb", "distortion",
-        "compression", "effects", "sampling", "synth", "autotune",
+        "mixing", "mastering", "reverb", "distortion", "effects", "synth", "autotune",
 
         # emoções e impacto sonoro
-        "emotion", "soulful", "heartfelt", "powerful", "passionate", "deep",
-        "intense", "expressive", "atmosphere", "haunting",
-
-        # estilos e gêneros musicais
-        "jazzy", "bluesy", "funky", "orchestral", "electronic", "synthwave",
-        "ballad", "anthemic", "cinematic", "acoustic", "indie", "grunge",
+        "emotion", "soulful", "powerful", "deep",
 
         # impacto e conexão emocional
-        "catchy", "earworm", "vibe", "nostalgic", "chills", "uplifting",
-        "dreamy", "hypnotic", "soothing", "meditative",
+        "catchy", "vibe", "nostalgic", "chills"
 
         # narrativa e significado
-        "story", "meaningful", "authentic", "metaphorical", "relatable",
-        "message", "theme", "symbolism",
+        "story", "message"
 
-        # **críticas negativas**
-        "boring", "repetitive", "generic", "forgettable",
-        "lifeless", "annoying", "overproduced", "autotuned",
-        "monotonous", "weak", "shallow", "bland",
-        "meaningless", "cliché", "cringe", "overrated",
-        "disappointing", "noisy", "distorted", "unbalanced",
-        "bad lyrics", "bad production", "bad mixing", "waste of time",
+        # críticas negativas
+        "boring", "repetitive", "generic", "forgettable", "lifeless", "annoying", "monotonous", "weak"
 
-        # **palavrões e insultos**
-        "shit", "fuck", "trash", "garbage", "sucks",
-        "stupid", "idiot", "terrible", "worst", "awful",
-        "pathetic", "lame", "wtf", "hell no",
-        "fucking trash", "worst song ever", "so bad",
-        "ugly voice", "stupid lyrics"
-
+        # palavrões e insultos
+        "terrible", "worst", "awful"
     ]
 
-    
+        
     videos = get_video_ids_and_titles(api_key, playlist_id)
     print(f"total de vídeos encontrados: {len(videos)}\n")
 
