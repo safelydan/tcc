@@ -1,0 +1,5 @@
+,comment,user_name,date,sentimento_vader,sentimento_textblob,sentimento_bert
+count,10577,10572,10577,10577,10577,10577
+unique,10111,10316,10570,3,3,5
+top,vibe,@NilceaMaria-s3l,2024-06-15T20:05:58Z,neutro,neutro,5 stars
+freq,22,12,4,4478,4736,4859
